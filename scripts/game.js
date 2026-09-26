@@ -1420,23 +1420,33 @@
 
       inputEl.addEventListener('keydown', (e) => {
         const list = document.querySelector('.autocomplete-list');
-        if (!list) return;
-        const btns = list.querySelectorAll('button');
-        if (!btns.length) return;
+        const btns = list ? list.querySelectorAll('button') : [];
 
-        if (e.key === 'ArrowDown') {
+        if (e.key === 'ArrowDown' && btns.length) {
           e.preventDefault();
           acIndex = (acIndex + 1) % btns.length;
           updateAcSelection(btns);
-        } else if (e.key === 'ArrowUp') {
+          return;
+        }
+        if (e.key === 'ArrowUp' && btns.length) {
           e.preventDefault();
           acIndex = (acIndex - 1 + btns.length) % btns.length;
           updateAcSelection(btns);
-        } else if (e.key === 'Enter' && acIndex >= 0) {
+          return;
+        }
+        if (e.key === 'Enter') {
           e.preventDefault();
-          btns[acIndex].click();
-        } else if (e.key === 'Escape') {
+          if (acIndex >= 0 && btns[acIndex]) {
+            btns[acIndex].click();
+          } else {
+            removeAutocomplete();
+            processGuess(inputEl.value);
+          }
+          return;
+        }
+        if (e.key === 'Escape') {
           removeAutocomplete();
+          return;
         }
       });
     }
