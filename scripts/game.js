@@ -127,11 +127,38 @@
   let hintRevealed = false;
   let countdownTimerInterval = null;
 
-  // Cache elements array
-  const elements = window.ELEMENTS || [];
+  // Get elements dataset reliably
+  function getElements() {
+    if (typeof window !== 'undefined' && window.ELEMENTS && window.ELEMENTS.length > 0) {
+      return window.ELEMENTS;
+    }
+    if (typeof ELEMENTS !== 'undefined' && ELEMENTS.length > 0) {
+      return ELEMENTS;
+    }
+    return [];
+  }
+
+  let elements = getElements();
+
+  // Robust Turkish / English string normalization (handles uppercase İ, accents, diacritics)
+  function normalizeStr(str) {
+    if (!str) return '';
+    return str
+      .trim()
+      .toLocaleLowerCase('tr')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/ı/g, 'i')
+      .replace(/ğ/g, 'g')
+      .replace(/ü/g, 'u')
+      .replace(/ş/g, 's')
+      .replace(/ö/g, 'o')
+      .replace(/ç/g, 'c');
+  }
 
   // --- INITIALIZATION ---
   function init() {
+    elements = getElements();
     setupDomListeners();
     initBackgroundParticles(80);
     initTypewriterPlaceholder();
@@ -314,19 +341,24 @@
 
   // --- GUESS PROCESSING ---
   function processGuess(inputVal) {
+    if (elements.length === 0) {
+      elements = getElements();
+    }
     if (isGameOver || !mysteryElement) return;
 
-    const val = (inputVal || '').trim().toLowerCase();
-    if (!val) {
+    const rawVal = (inputVal || '').trim();
+    if (!rawVal) {
       shakeInput();
       return;
     }
 
+    const normVal = normalizeStr(rawVal);
+
     // Match element by Turkish name, English name, or chemical symbol
     const found = elements.find(el => {
-      return el.nameEn.toLowerCase() === val ||
-             el.nameTr.toLowerCase() === val ||
-             el.symbol.toLowerCase() === val;
+      return normalizeStr(el.nameEn) === normVal ||
+             normalizeStr(el.nameTr) === normVal ||
+             normalizeStr(el.symbol) === normVal;
     });
 
     if (!found) {
@@ -770,29 +802,34 @@
   function onInputChange() {
     const inputEl = document.querySelector('.js-guess-input');
     if (!inputEl) return;
-    const val = inputEl.value.trim().toLowerCase();
+    const rawVal = inputEl.value.trim();
     updateClearBtn();
 
-    if (!val) {
+    if (!rawVal) {
       removeAutocomplete();
       return;
     }
 
+    if (elements.length === 0) elements = getElements();
+    const normVal = normalizeStr(rawVal);
+
     const matches = elements.filter(el => {
-      const name = (currentLang === 'tr' ? el.nameTr : el.nameEn).toLowerCase();
-      const sym = el.symbol.toLowerCase();
-      return name.startsWith(val) || sym.startsWith(val) || name.includes(val);
+      const nameTr = normalizeStr(el.nameTr);
+      const nameEn = normalizeStr(el.nameEn);
+      const sym = normalizeStr(el.symbol);
+      return nameTr.startsWith(normVal) || nameEn.startsWith(normVal) ||
+             sym.startsWith(normVal) || nameTr.includes(normVal) || nameEn.includes(normVal);
     }).sort((a, b) => {
-      const nameA = currentLang === 'tr' ? a.nameTr : a.nameEn;
-      const nameB = currentLang === 'tr' ? b.nameTr : b.nameEn;
-      const aStarts = nameA.toLowerCase().startsWith(val) || a.symbol.toLowerCase() === val;
-      const bStarts = nameB.toLowerCase().startsWith(val) || b.symbol.toLowerCase() === val;
+      const curA = normalizeStr(currentLang === 'tr' ? a.nameTr : a.nameEn);
+      const curB = normalizeStr(currentLang === 'tr' ? b.nameTr : b.nameEn);
+      const aStarts = curA.startsWith(normVal) || normalizeStr(a.symbol) === normVal;
+      const bStarts = curB.startsWith(normVal) || normalizeStr(b.symbol) === normVal;
       if (aStarts && !bStarts) return -1;
       if (!aStarts && bStarts) return 1;
-      return nameA.localeCompare(nameB);
+      return (currentLang === 'tr' ? a.nameTr : a.nameEn).localeCompare(currentLang === 'tr' ? b.nameTr : b.nameEn);
     }).slice(0, 8);
 
-    renderAutocompleteDropdown(matches, val);
+    renderAutocompleteDropdown(matches, rawVal);
   }
 
   function renderAutocompleteDropdown(matches, query) {
@@ -1361,6 +1398,15 @@
     const form = document.querySelector('.js-guess-form');
     if (form) {
       form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const inputEl = document.querySelector('.js-guess-input');
+        if (inputEl) processGuess(inputEl.value);
+      });
+    }
+
+    const guessBtn = document.querySelector('.js-guess-button');
+    if (guessBtn) {
+      guessBtn.addEventListener('click', (e) => {
         e.preventDefault();
         const inputEl = document.querySelector('.js-guess-input');
         if (inputEl) processGuess(inputEl.value);

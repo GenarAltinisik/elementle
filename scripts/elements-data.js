@@ -1,7 +1,7 @@
 // 118 Periodic Elements Dataset (Bilingual: English & Turkish)
 // Optimized for GitHub Pages hosting, zero external dependencies required.
 
-const ELEMENTS = [
+var ELEMENTS = [
   {
     "atomicNumber": 1,
     "symbol": "H",
@@ -2481,6 +2481,10 @@ const ELEMENTS = [
     ]
   }
 ];
+
+if (typeof window !== 'undefined') {
+  window.ELEMENTS = ELEMENTS;
+}
 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = ELEMENTS;
