@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elementle - Guess the Element | Element Tahmin Oyunu</title>
+  <meta name="description" content="Elementle kopyası - Günlük ve Sonsuz modlu periyodik tablo element tahmin oyunu. Türkçe ve İngilizce dil desteği ile 8 tahminde gizemli elementi bulun!">
+  <meta name="keywords" content="elementle, periodic table, periyodik tablo, element oyunu, wordle, kimya oyunu">
+  <meta property="og:title" content="Elementle - Guess the Element">
+  <meta property="og:description" content="8 denemede periyodik tablodaki gizemli elementi tahmin edin. Türkçe ve İngilizce, Günlük ve Sonsuz mod!">
+  <meta property="og:type" content="website">
+
+  <!-- Favicon SVG -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23191919'/><text x='50' y='68' font-family='sans-serif' font-size='55' font-weight='bold' fill='%2362a55c' text-anchor='middle'>El</text></svg>">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="styles/elementle.css">
+
+  <!-- Confetti library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+  <!-- Animated background particles -->
+  <div class="bg-particles" aria-hidden="true"></div>
+
+  <main>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+      <div class="nav-left">
+        <!-- Periodic Table Explorer Icon Button -->
+        <button type="button" class="nav-icon-btn js-btn-ptable" aria-label="Periyodik Tablo" title="Periyodik Tablo">
+          <span class="nav-icon-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3 3h5v5H3zm0 7h5v5H3zm0 7h5v5H3zm7-7h5v5h-5zm0 7h5v5h-5zm7-14h5v5h-5zm0 7h5v5h-5zm0 7h5v5h-5z"/>
+            </svg>
+          </span>
+        </button>
+
+        <!-- How to play / Help Icon Button -->
+        <button type="button" class="nav-icon-btn js-btn-how-to-play" aria-label="Nasıl Oynanır" title="Nasıl Oynanır">
+          <span class="nav-icon-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" height="22" viewBox="0 -960 960 960" width="22" fill="currentColor">
+              <path d="M478-240q21 0 35.5-14.5T528-290q0-21-14.5-35.5T478-340q-21 0-35.5 14.5T428-290q0 21 14.5 35.5T478-240Zm-36-154h74q0-33 7.5-52t42.5-52q26-26 41-49.5t15-56.5q0-56-41-86t-97-30q-57 0-92.5 30T342-618l66 26q5-18 22.5-39t53.5-21q32 0 48 17.5t16 38.5q0 20-12 37.5T506-526q-44 39-54 59t-10 73Zm38 314q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/>
+            </svg>
+          </span>
+        </button>
+      </div>
+
+      <!-- Center Logo Title -->
+      <div class="nav-center">
+        <span class="nav-text js-nav-title">ELEME<span class="green-letter">N</span>TLE</span>
+      </div>
+
+      <div class="nav-right">
+        <!-- Language Switcher Button -->
+        <button type="button" class="lang-toggle-btn js-lang-toggle" aria-label="Dili Değiştir / Switch Language">
+          <span class="lang-badge js-lang-label">🇹🇷 TR</span>
+        </button>
+
+        <!-- Stats Button -->
+        <button type="button" class="nav-icon-btn js-btn-stats" aria-label="İstatistikler" title="İstatistikler">
+          <span class="nav-icon-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" height="22" viewBox="0 -960 960 960" width="22" fill="currentColor">
+              <path d="M160-200h160v-320H160v320Zm240 0h160v-560H400v560Zm240 0h160v-240H640v240ZM80-120v-480h240v-240h320v320h240v400H80Z"/>
+            </svg>
+          </span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Game Mode Switcher (Daily vs Endless) -->
+    <div class="mode-switcher" role="tablist">
+      <button type="button" class="mode-tab js-tab-daily active" role="tab" aria-selected="true">
+        📅 Günün Elementi
+      </button>
+      <button type="button" class="mode-tab js-tab-endless" role="tab" aria-selected="false">
+        ♾️ Sonsuz Mod
+      </button>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+      <!-- Guess Form -->
+      <form action="" autocomplete="off" class="guess-form js-guess-form">
+        <div class="guess-row">
+          <div class="autocomplete-wrapper js-autocomplete-wrapper">
+            <input id="guess-input" placeholder="Element ara..." class="guess-input js-guess-input" spellcheck="false" autocomplete="off">
+            <button type="button" class="input-clear-btn js-input-clear" aria-label="Temizle">&times;</button>
+          </div>
+          <button type="submit" class="guess-button js-guess-button">TAHMİN ET</button>
+          <button class="hint-button js-hint-button" type="button" aria-label="İpucu" title="İpucu">
+            <svg xmlns="http://www.w3.org/2000/svg" height="22" viewBox="0 -960 960 960" width="22" fill="currentColor">
+              <path d="M480-80q-33 0-56.5-23.5T400-160h160q0 33-23.5 56.5T480-80ZM320-200v-80h320v80H320ZM322-360q-47-32-74.5-80T220-560q0-108 76-184t184-76q108 0 184 76t76 184q0 72-27.5 120T638-360H322Z"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Hint Speech Bubble Container -->
+        <div id="hint-container" class="hint-container js-hint-container" role="status" aria-live="polite"></div>
+      </form>
+
+      <!-- Reveal answer on loss -->
+      <div class="reveal-answer-container js-reveal-answer"></div>
+
+      <!-- 8-Card Element Grid -->
+      <div class="grid-container">
+        <div class="element-grid">
+          <!-- 8 slot elements generated via JS -->
+        </div>
+      </div>
+
+      <!-- Results & Action Buttons (Share, Wiki, Next Element) -->
+      <div class="correct-guess-container js-results-actions"></div>
+
+      <!-- Daily Countdown Timebox -->
+      <div class="timebox" style="display: none;"></div>
+    </div>
+  </main>
+
+  <!-- How to Play Modal -->
+  <div class="overlay" id="modal-how-to-play" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title js-modal-how-title">Nasıl Oynanır?</h2>
+        <button type="button" class="modal-close-btn js-modal-close" aria-label="Kapat">&times;</button>
+      </div>
+      <div class="modal-body js-how-to-play-body">
+        <!-- Content inserted dynamically by game.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics Modal -->
+  <div class="overlay" id="modal-stats" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title js-modal-stats-title">İstatistikler</h2>
+        <button type="button" class="modal-close-btn js-modal-close" aria-label="Kapat">&times;</button>
+      </div>
+      <div class="modal-body js-stats-modal-body">
+        <!-- Content inserted dynamically by game.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Periodic Table Explorer Modal -->
+  <div class="overlay" id="modal-ptable" role="dialog" aria-modal="true">
+    <div class="modal-card periodic-modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title js-modal-ptable-title">Periyodik Tablo</h2>
+        <button type="button" class="modal-close-btn js-modal-close" aria-label="Kapat">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="ptable-search-bar">
+          <input type="text" class="ptable-input js-ptable-search" placeholder="Element adı veya simge ile filtrele...">
+        </div>
+        <p class="ptable-hint js-ptable-hint" style="color: rgba(255,255,255,0.7); font-size: 0.95rem; margin-bottom: 10px;">
+          💡 Bir elemente tıklayarak doğrudan tahmin kutusuna ekleyebilirsiniz.
+        </p>
+        <div class="ptable-scroll-wrap">
+          <div class="ptable-grid js-ptable-grid">
+            <!-- 118 Elements inserted dynamically -->
+          </div>
+        </div>
+
+        <div class="ptable-legend">
+          <div class="legend-item"><span class="legend-color-box" style="background:#37903e"></span> Ametal</div>
+          <div class="legend-item"><span class="legend-color-box" style="background:#a879e6"></span> Soygaz</div>
+          <div class="legend-item"><span class="legend-color-box" style="background:#e88771"></span> Alkali Metal</div>
+          <div class="legend-item"><span class="legend-color-box" style="background:#deb859"></span> Toprak Alkali</div>
+          <div class="legend-item"><span class="legend-color-box" style="background:#94c058"></span> Yarı Metal</div>
+          <div class="legend-item"><span class="legend-color-box" style="background:#38c7be"></span> Halojen</div>
+          <div class="legend-item"><span class="legend-color-box" style="background:#85add0"></span> Diğer Metal</div>
+          <div class="legend-item"><span class="legend-color-box" style="background:#418eff"></span> Geçiş Metali</div>
+          <div class="legend-item"><span class="legend-color-box" style="background:#df9bc6"></span> Lantanit</div>
+          <div class="legend-item"><span class="legend-color-box" style="background:#bf9891"></span> Aktinit</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Elementle &copy; 2026 &bull; GitHub Pages Uyumlu &bull; Türkçe &amp; English</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="scripts/elements-data.js"></script>
+  <script src="scripts/game.js"></script>
+</body>
+</html>
